@@ -138,6 +138,70 @@ def save_interim_dataset(
         f"Interim dataset saved to: {interim_path}"
     )
 
+# ---------------------------------------------------------------------------
+# Save Network Training Ratings
+# ---------------------------------------------------------------------------
+
+def save_network_training_ratings(
+    ratings_filtered,
+    df_split,
+    movie_map,
+    interim_dir,
+):
+    """Save ratings belonging to the chronological training split."""
+
+    import os
+
+    import pandas as pd
+
+    # Use the exact training sequences already produced by preprocessing.
+    train_items = df_split[["user_id", "train_sequence"]].explode(
+        "train_sequence"
+    )
+
+    train_items = train_items.rename(
+        columns={"train_sequence": "mapped_movie_id"}
+    )
+
+    train_items["mapped_movie_id"] = train_items[
+        "mapped_movie_id"
+    ].astype("int64")
+
+    # Preserve the original ratings and timestamps.
+    ratings = ratings_filtered.copy()
+    ratings["mapped_movie_id"] = ratings["movie_id"].map(movie_map)
+
+    # Keep only interactions assigned to each user's training sequence.
+    train_ratings = train_items.merge(
+        ratings[
+            [
+                "user_id",
+                "movie_id",
+                "mapped_movie_id",
+                "rating",
+                "timestamp",
+            ]
+        ],
+        on=["user_id", "mapped_movie_id"],
+        how="left",
+        validate="one_to_one",
+    )
+
+    if train_ratings["rating"].isna().any():
+        raise ValueError("Some training items have no matching rating.")
+
+    output_dir = os.path.join(interim_dir, "ml-1m")
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_path = os.path.join(
+        output_dir, "network_train_ratings.parquet"
+    )
+
+    train_ratings.to_parquet(output_path, index=False)
+
+    print(f"Network training ratings saved to: {output_path}")
+    print(f"Training rating records: {len(train_ratings):,}")
+
 
 # ---------------------------------------------------------------------------
 # BERT4Rec Dataset Generation
@@ -399,6 +463,13 @@ def preprocess_pipeline(
     df_split = apply_movie_mapping(
         df_split,
         movie_map,
+    )
+
+    save_network_training_ratings(
+        ratings_filtered=ratings_filtered,
+        df_split=df_split,
+        movie_map=movie_map,
+        interim_dir=interim_dir,
     )
 
     print(
