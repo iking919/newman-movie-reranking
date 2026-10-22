@@ -187,6 +187,7 @@ The preprocessing scripts are included in this repository, run:
 python scripts/download_ml1m.py
 python scripts/preprocess_ml1m.py
 python -m src.network.build_movie_network
+python -m src.network.newman_ranking
 ```
 
 These script names are inherited from the existing project and should be verified after copying the relevant files.
