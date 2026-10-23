@@ -332,11 +332,6 @@ def finalize(
     theta = logit(np.clip(q, 1e-10, 1 - 1e-10))
     nlp, grad = neg_log_posterior(np.concatenate([x, theta]), data)
 
-    # Resolve the (x, q) -> (-x, 1-q) mirror symmetry: choose the
-    # orientation in which observed winners are more likely dominant.
-    if np.average(q, weights=data["type_counts"]) < 0.5:
-        x, q = -x, 1.0 - q
-
     scores = pd.DataFrame(
         {
             "mapped_movie_id": data["node_ids"],
