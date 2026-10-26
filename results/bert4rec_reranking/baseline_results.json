@@ -1,0 +1,63 @@
+{
+  "model": "baseline",
+  "checkpoint": "checkpoints\\bert4rec_baseline\\bert4rec_baseline_best.pt",
+  "validation_metrics_baseline": {
+    "HR@5": 0.15281456953642383,
+    "HR@10": 0.23211920529801325,
+    "NDCG@5": 0.09942204628784825,
+    "NDCG@10": 0.12501794683685344
+  },
+  "selected_weights": {
+    "newman": 0.0,
+    "mean_rating": 0.0,
+    "shrunk_mean_rating": 0.0,
+    "popularity": 0.3
+  },
+  "test_metrics": {
+    "bert4rec": {
+      "HR@5": 0.14602649006622517,
+      "HR@10": 0.2206953642384106,
+      "NDCG@5": 0.09615978639087945,
+      "NDCG@10": 0.12023223694407892
+    },
+    "newman": {
+      "HR@5": 0.14602649006622517,
+      "HR@10": 0.2206953642384106,
+      "NDCG@5": 0.09615978639087945,
+      "NDCG@10": 0.12023223694407892
+    },
+    "mean_rating": {
+      "HR@5": 0.14602649006622517,
+      "HR@10": 0.2206953642384106,
+      "NDCG@5": 0.09615978639087945,
+      "NDCG@10": 0.12023223694407892
+    },
+    "shrunk_mean_rating": {
+      "HR@5": 0.14602649006622517,
+      "HR@10": 0.2206953642384106,
+      "NDCG@5": 0.09615978639087945,
+      "NDCG@10": 0.12023223694407892
+    },
+    "popularity": {
+      "HR@5": 0.1447019867549669,
+      "HR@10": 0.2228476821192053,
+      "NDCG@5": 0.09555950665102383,
+      "NDCG@10": 0.12082147845261001
+    }
+  },
+  "validation_selection_metric": "NDCG@10",
+  "lambda_grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0
+  ],
+  "newman_score_file": "data\\processed\\ml-1m\\movie_network\\movie_scores_direct.csv"
+}
