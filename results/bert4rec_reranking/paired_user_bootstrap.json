@@ -1,0 +1,131 @@
+{
+  "model": "tuned",
+  "checkpoint": "checkpoints\\bert4rec_tuned\\bert4rec_tuned_best.pt",
+  "test_data": "data/processed/ml-1m/bert4rec/test.parquet",
+  "baseline_results_source": "results\\bert4rec_reranking\\tuned_results.json",
+  "n_users": 6040,
+  "bootstrap_replicates": 10000,
+  "random_seed": 42,
+  "confidence_interval": "95% percentile paired-user bootstrap",
+  "difference_direction": "reranked minus BERT4Rec baseline",
+  "weight_selection": "Existing validation-selected weights; not retuned",
+  "aggregate_reproduction_checks": "passed",
+  "comparisons": {
+    "newman": {
+      "validation_selected_lambda": 0.1,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.2817880794701987,
+          "difference_reranked_minus_baseline": 0.0004966887417218543,
+          "relative_change_percent": 0.17657445556209533,
+          "ci_95_percentile": [
+            -0.002152317880794702,
+            0.0031456953642384107
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.6241
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.15510050419162577,
+          "difference_reranked_minus_baseline": -0.0008448513995743578,
+          "relative_change_percent": -0.5417611806209072,
+          "ci_95_percentile": [
+            -0.0020432653377266373,
+            0.00035056075615700054
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.0845
+        }
+      }
+    },
+    "mean_rating": {
+      "validation_selected_lambda": 0.05,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.2824503311258278,
+          "difference_reranked_minus_baseline": 0.0011589403973509935,
+          "relative_change_percent": 0.41200706297822254,
+          "ci_95_percentile": [
+            -0.0006622516556291391,
+            0.0031456953642384107
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.8618
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.15572870273246056,
+          "difference_reranked_minus_baseline": -0.0002166528587395592,
+          "relative_change_percent": -0.13892870224843343,
+          "ci_95_percentile": [
+            -0.001046518169249945,
+            0.0006019900537550495
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.2971
+        }
+      }
+    },
+    "shrunk_mean_rating": {
+      "validation_selected_lambda": 0.05,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.28211920529801326,
+          "difference_reranked_minus_baseline": 0.0008278145695364238,
+          "relative_change_percent": 0.29429075927015896,
+          "ci_95_percentile": [
+            -0.0013245033112582781,
+            0.002814569536423841
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.7579
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.15518411562570783,
+          "difference_reranked_minus_baseline": -0.0007612399654922952,
+          "relative_change_percent": -0.4881453266795791,
+          "ci_95_percentile": [
+            -0.001761824615653221,
+            0.00025736966830167997
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.0709
+        }
+      }
+    },
+    "popularity": {
+      "validation_selected_lambda": 0.3,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.28791390728476823,
+          "difference_reranked_minus_baseline": 0.006622516556291391,
+          "relative_change_percent": 2.3543260741612717,
+          "ci_95_percentile": [
+            0.0024834437086092716,
+            0.01076158940397351
+          ],
+          "ci_excludes_zero": true,
+          "bootstrap_probability_difference_positive": 0.9983
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.1606954266957322,
+          "difference_reranked_minus_baseline": 0.0047500711045320694,
+          "relative_change_percent": 3.045984336323583,
+          "ci_95_percentile": [
+            0.0028698433018723817,
+            0.006633864861137401
+          ],
+          "ci_excludes_zero": true,
+          "bootstrap_probability_difference_positive": 1.0
+        }
+      }
+    }
+  }
+}

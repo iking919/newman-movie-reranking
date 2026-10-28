@@ -5,7 +5,12 @@ Validation-tuned BERT4Rec reranking with Newman global scores and popularity.
 
 Existing checkpoints and baseline evaluation results are never overwritten.
 
-Run with 'PYTHONPATH=. python scripts/run_bert4rec_newman_reranking.py'
+Run with PYTHONPATH=. python scripts/run_bert4rec_newman_reranking.py
+
+Also has been run with 
+
+PYTHONPATH=. python scripts/run_bert4rec_newman_reranking.py \
+  --output-dir results/bert4rec_reranking/reliability_experiment
 """
 
 from __future__ import annotations
@@ -94,30 +99,72 @@ def load_global_scores(
     return result
 
 
-def load_popularity_scores(
-    train_sequences_path: Path,
+def load_reliability_adjusted_newman_scores(
+    newman_path: Path,
+    baseline_scores_path: Path,
     vocab_size: int,
+    k: float,
 ) -> np.ndarray:
-    """Count training interactions from the existing training sequences."""
-    df = pd.read_parquet(train_sequences_path)
+    """Shrink raw Newman scores according to each movie's training count."""
+    if k <= 0:
+        raise ValueError(f"k must be positive; received {k}")
 
-    if "train_sequence" not in df.columns:
+    newman_df = pd.read_csv(newman_path)
+    baseline_df = pd.read_csv(baseline_scores_path)
+
+    required_newman = {"mapped_movie_id", "score"}
+    required_baseline = {"mapped_movie_id", "rating_count"}
+
+    if not required_newman.issubset(newman_df.columns):
         raise ValueError(
-            f"{train_sequences_path} must contain 'train_sequence'; "
-            f"found {list(df.columns)}"
+            f"{newman_path} must contain {sorted(required_newman)}"
+        )
+    if not required_baseline.issubset(baseline_df.columns):
+        raise ValueError(
+            f"{baseline_scores_path} must contain "
+            f"{sorted(required_baseline)}"
         )
 
-    counts = np.zeros(vocab_size, dtype=np.float64)
+    if newman_df["mapped_movie_id"].duplicated().any():
+        raise ValueError("Newman score file contains duplicate movie IDs.")
+    if baseline_df["mapped_movie_id"].duplicated().any():
+        raise ValueError("Baseline file contains duplicate movie IDs.")
 
-    for sequence in df["train_sequence"]:
-        sequence = sequence.tolist() if hasattr(sequence, "tolist") else sequence
-        for item in sequence:
-            item = int(item)
-            if 2 <= item < vocab_size:
-                counts[item] += 1
+    real_ids = np.arange(2, vocab_size)
+
+    newman_df = newman_df.set_index("mapped_movie_id")
+    baseline_df = baseline_df.set_index("mapped_movie_id")
+
+    missing_newman = set(real_ids) - set(newman_df.index)
+    missing_baseline = set(real_ids) - set(baseline_df.index)
+
+    if missing_newman:
+        raise ValueError(
+            f"Newman scores are missing {len(missing_newman)} catalog IDs."
+        )
+    if missing_baseline:
+        raise ValueError(
+            f"Rating counts are missing {len(missing_baseline)} catalog IDs."
+        )
+
+    raw_scores = pd.to_numeric(
+        newman_df.loc[real_ids, "score"], errors="raise"
+    ).to_numpy(dtype=np.float64)
+
+    counts = pd.to_numeric(
+        baseline_df.loc[real_ids, "rating_count"], errors="raise"
+    ).to_numpy(dtype=np.float64)
+
+    if not np.isfinite(raw_scores).all():
+        raise ValueError("Raw Newman scores contain non-finite values.")
+    if not np.isfinite(counts).all() or (counts < 0).any():
+        raise ValueError("Rating counts must be finite and nonnegative.")
+
+    # Reliability weight: low-count movies receive stronger shrinkage.
+    adjusted_scores = (counts / (counts + k)) * raw_scores
 
     result = np.zeros(vocab_size, dtype=np.float64)
-    result[2:] = standardize(np.log1p(counts[2:]))
+    result[real_ids] = standardize(adjusted_scores)
     return result
 
 
@@ -387,6 +434,17 @@ def main() -> None:
             "shrunk_mean_rating": shrunk_mean_rating,
             "popularity": popularity,
         }
+        
+        for k in (10, 25, 50, 100):
+            methods[f"newman_shrink_k{k}"] = (
+                load_reliability_adjusted_newman_scores(
+                    newman_path=newman_path,
+                    baseline_scores_path=baseline_scores_path,
+                    vocab_size=vocab_size,
+                    k=k,
+                )
+            )
+            
         validation_grid = []
         selected = {}
 
