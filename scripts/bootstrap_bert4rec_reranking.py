@@ -21,6 +21,7 @@ from src.utils.checkpointing import load_checkpoint
 from src.utils.config import load_config
 from scripts.run_bert4rec_newman_reranking import (
     load_global_scores,
+    load_reliability_adjusted_newman_scores,
     predict_logits,
     prepare_rows,
 )
@@ -150,6 +151,15 @@ def main() -> None:
     if saved.get("model") != "tuned":
         raise ValueError(f"Expected tuned results, found {saved.get('model')}")
 
+    reliability_result_path = (
+        RESULTS_DIR / "reliability_experiment/tuned_results.json"
+    )
+    reliability_saved = json.loads(
+        reliability_result_path.read_text(encoding="utf-8")
+    )
+    if reliability_saved.get("model") != "tuned":
+        raise ValueError("Expected tuned reliability experiment results.")
+
     selected_weights = saved["selected_weights"]
 
     config_path = ROOT / "configs/bert4rec_tuned.yaml"
@@ -244,12 +254,23 @@ def main() -> None:
             score_column="popularity_score",
         ),
     }
+    for k in (10, 25, 50, 100):
+        methods[f"newman_shrink_k{k}"] = (
+            load_reliability_adjusted_newman_scores(
+                newman_path=newman_path,
+                baseline_scores_path=baseline_scores_path,
+                vocab_size=vocab_size,
+                k=k,
+            )
+        )
 
     rng = np.random.default_rng(RANDOM_SEED)
     comparisons = {}
 
     for method, global_scores in methods.items():
-        weight = float(selected_weights[method])
+        is_reliability_variant = method.startswith("newman_shrink_k")
+        result_source = reliability_saved if is_reliability_variant else saved
+        weight = float(result_source["selected_weights"][method])
         LOGGER.info("Evaluating %s at validation-selected lambda=%s",
                     method, weight)
 
@@ -270,7 +291,7 @@ def main() -> None:
         # Check aggregate reproduction against the saved test results.
         for metric in METRICS:
             calculated = float(reranked_users[metric].mean())
-            expected = float(saved["test_metrics"][method][metric])
+            expected = float(result_source["test_metrics"][method][metric])
             if not np.isclose(calculated, expected, atol=1e-6, rtol=0):
                 raise ValueError(
                     f"{method} {metric} mismatch: recomputed {calculated:.8f}, "
@@ -294,6 +315,7 @@ def main() -> None:
         "checkpoint": str(checkpoint_path),
         "test_data": str(data_cfg["test_path"]),
         "baseline_results_source": str(result_path),
+        "reliability_results_source": str(reliability_result_path),
         "n_users": len(rows),
         "bootstrap_replicates": N_BOOTSTRAP,
         "random_seed": RANDOM_SEED,

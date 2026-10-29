@@ -3,6 +3,7 @@
   "checkpoint": "checkpoints\\bert4rec_tuned\\bert4rec_tuned_best.pt",
   "test_data": "data/processed/ml-1m/bert4rec/test.parquet",
   "baseline_results_source": "results\\bert4rec_reranking\\tuned_results.json",
+  "reliability_results_source": "results\\bert4rec_reranking\\reliability_experiment\\tuned_results.json",
   "n_users": 6040,
   "bootstrap_replicates": 10000,
   "random_seed": 42,
@@ -124,6 +125,122 @@
           ],
           "ci_excludes_zero": true,
           "bootstrap_probability_difference_positive": 1.0
+        }
+      }
+    },
+    "newman_shrink_k10": {
+      "validation_selected_lambda": 0.05,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.28211920529801326,
+          "difference_reranked_minus_baseline": 0.0008278145695364238,
+          "relative_change_percent": 0.29429075927015896,
+          "ci_95_percentile": [
+            -0.000997516556291387,
+            0.002814569536423841
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.7746
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.15551150850476814,
+          "difference_reranked_minus_baseline": -0.0004338470864319929,
+          "relative_change_percent": -0.27820455747928313,
+          "ci_95_percentile": [
+            -0.0013262962135303323,
+            0.00046014347330677625
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.1747
+        }
+      }
+    },
+    "newman_shrink_k25": {
+      "validation_selected_lambda": 0.05,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.2824503311258278,
+          "difference_reranked_minus_baseline": 0.0011589403973509935,
+          "relative_change_percent": 0.41200706297822254,
+          "ci_95_percentile": [
+            -0.0008278145695364238,
+            0.0033112582781456954
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.8496
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.15551970252700806,
+          "difference_reranked_minus_baseline": -0.00042565306419209073,
+          "relative_change_percent": -0.2729501385779712,
+          "ci_95_percentile": [
+            -0.001411586528639106,
+            0.0005315131898035359
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.1935
+        }
+      }
+    },
+    "newman_shrink_k50": {
+      "validation_selected_lambda": 0.05,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.2827814569536424,
+          "difference_reranked_minus_baseline": 0.001490066225165563,
+          "relative_change_percent": 0.5297233666862862,
+          "ci_95_percentile": [
+            -0.0006622516556291391,
+            0.003642384105960265
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.8994
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.15564065533795954,
+          "difference_reranked_minus_baseline": -0.00030470025324061335,
+          "relative_change_percent": -0.1953891169669482,
+          "ci_95_percentile": [
+            -0.0013099813871565937,
+            0.00071492524975178
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.2843
+        }
+      }
+    },
+    "newman_shrink_k100": {
+      "validation_selected_lambda": 0.05,
+      "metrics": {
+        "HR@10": {
+          "baseline_mean": 0.2812913907284768,
+          "reranked_mean": 0.2827814569536424,
+          "difference_reranked_minus_baseline": 0.001490066225165563,
+          "relative_change_percent": 0.5297233666862862,
+          "ci_95_percentile": [
+            -0.0006622516556291391,
+            0.0038079470198675498
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.8951
+        },
+        "NDCG@10": {
+          "baseline_mean": 0.15594535559120015,
+          "reranked_mean": 0.1555503394722402,
+          "difference_reranked_minus_baseline": -0.00039501611895993705,
+          "relative_change_percent": -0.2533041894466188,
+          "ci_95_percentile": [
+            -0.0014676424324748963,
+            0.0006780786047698785
+          ],
+          "ci_excludes_zero": false,
+          "bootstrap_probability_difference_positive": 0.2352
         }
       }
     }
